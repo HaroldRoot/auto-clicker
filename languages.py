@@ -42,6 +42,7 @@ TRANSLATIONS = {
         'late_end_tooltip': '当所有条件都达到时停止',
         'start_shortcut_tooltip': '点击此按钮后按下新的快捷键来更改',
         'stop_shortcut_tooltip': '点击此按钮后按下新的快捷键来更改',
+        'status_waiting': '等待中',
     },
     'en_US': {
         'window_title': 'Auto Clicker',
@@ -86,6 +87,7 @@ TRANSLATIONS = {
         'late_end_tooltip': 'Stop when all conditions are met',
         'start_shortcut_tooltip': 'Click this button then press new shortcut to change',
         'stop_shortcut_tooltip': 'Click this button then press new shortcut to change',
+        'status_waiting': 'Waiting',
     }
 }
 

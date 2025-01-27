@@ -28,9 +28,12 @@ class MainWindow(QMainWindow):
         main_layout.addLayout(status_layout)
 
     def start_clicking(self):
-        self.status_label.setText(f"{LM.get_text('status')}: {LM.get_text('status_running')}")
+        self.status_label.setText(f"{LM.get_text('status')}: {LM.get_text('status_waiting')}")
         self.click_count = 0
-        self.update_click_count()
+        self.click_count_label.setText(f"{LM.get_text('click_count_label')}: {self.click_count}")
+
+    def start_actual_clicking(self):
+        self.status_label.setText(f"{LM.get_text('status')}: {LM.get_text('status_running')}")
 
     def stop_clicking(self):
         self.status_label.setText(f"{LM.get_text('status')}: {LM.get_text('status_stopped')}")

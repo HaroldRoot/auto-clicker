@@ -308,6 +308,8 @@ class AutoClickerWindow(MainWindow):  # 改为继承 MainWindow
         self.start_time = time.time()
         interval = int(self.interval_input.text())
         self.click_timer.start(interval)
+        # 更新状态为实际开始点击
+        super().start_actual_clicking()
         
     def stop_clicking(self):
         """停止连点"""
@@ -325,9 +327,9 @@ class AutoClickerWindow(MainWindow):  # 改为继承 MainWindow
             return
             
         mouse.click()
-        
-        # 调用父类的方法更新点击次数
-        super().update_click_count()
+        self.click_count += 1
+        # 更新显示的点击次数
+        self.click_count_label.setText(f"{LM.get_text('click_count_label')}: {self.click_count}")
         
         if not self.infinite_mode.isChecked():
             try:
