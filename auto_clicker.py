@@ -221,11 +221,13 @@ class AutoClickerWindow(MainWindow):  # 改为继承 MainWindow
         if button == self.start_shortcut_btn:
             self.start_shortcut = QShortcut(QKeySequence(sequence), self)
             self.start_shortcut.activated.connect(self.start_clicking)
-            self.start_button.setText(f"开始 ({sequence})")
+            # 只有当快捷键不为空时才显示快捷键
+            self.start_button.setText("开始" if sequence == "按下快捷键..." else f"开始 ({sequence})")
         else:
             self.stop_shortcut = QShortcut(QKeySequence(sequence), self)
             self.stop_shortcut.activated.connect(self.stop_clicking)
-            self.stop_button.setText(f"停止 ({sequence})")
+            # 只有当快捷键不为空时才显示快捷键
+            self.stop_button.setText("停止" if sequence == "按下快捷键..." else f"停止 ({sequence})")
         
         # 更新快捷键按钮文本
         button.setText(sequence)
