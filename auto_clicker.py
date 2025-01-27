@@ -58,7 +58,7 @@ class AutoClickerWindow(MainWindow):  # 改为继承 MainWindow
         
         self.delay_input = QLineEdit("3")
         self.delay_input.setValidator(QDoubleValidator(0, 999, 1))
-        self.delay_input.setToolTip("设置点击开始前的等待时间（秒）")
+        self.delay_input.setToolTip(LM.get_text('delay_tooltip'))
         
         delay_layout.addWidget(QLabel(LM.get_text('start_delay')))
         delay_layout.addWidget(self.delay_input)
@@ -74,7 +74,7 @@ class AutoClickerWindow(MainWindow):  # 改为继承 MainWindow
         duration_layout = QHBoxLayout()
         self.duration_input = QLineEdit()
         self.duration_input.setValidator(QDoubleValidator(0, 999999, 1))
-        self.duration_input.setToolTip("设置连点持续的总时间（秒）")
+        self.duration_input.setToolTip(LM.get_text('duration_tooltip'))
         duration_layout.addWidget(QLabel(LM.get_text('duration')))
         duration_layout.addWidget(self.duration_input)
         click_layout.addLayout(duration_layout)
@@ -83,7 +83,7 @@ class AutoClickerWindow(MainWindow):  # 改为继承 MainWindow
         count_layout = QHBoxLayout()
         self.count_input = QLineEdit()
         self.count_input.setValidator(QIntValidator(1, 999999))
-        self.count_input.setToolTip("设置要点击的总次数")
+        self.count_input.setToolTip(LM.get_text('count_tooltip'))
         count_layout.addWidget(QLabel(LM.get_text('click_count')))
         count_layout.addWidget(self.count_input)
         click_layout.addLayout(count_layout)
@@ -92,14 +92,14 @@ class AutoClickerWindow(MainWindow):  # 改为继承 MainWindow
         interval_layout = QHBoxLayout()
         self.interval_input = QLineEdit("50")
         self.interval_input.setValidator(QIntValidator(1, 10000))
-        self.interval_input.setToolTip("设置两次点击之间的时间间隔（毫秒）")
+        self.interval_input.setToolTip(LM.get_text('interval_tooltip'))
         interval_layout.addWidget(QLabel(LM.get_text('click_interval')))
         interval_layout.addWidget(self.interval_input)
         click_layout.addLayout(interval_layout)
         
         # 无限模式选项
         self.infinite_mode = QCheckBox(LM.get_text('infinite_mode'))
-        self.infinite_mode.setToolTip("启用无限模式将忽略持续时间和点击次数限制")
+        self.infinite_mode.setToolTip(LM.get_text('infinite_mode_tooltip'))
         self.infinite_mode.stateChanged.connect(self.toggle_infinite_mode)
         click_layout.addWidget(self.infinite_mode)
         
@@ -113,8 +113,8 @@ class AutoClickerWindow(MainWindow):  # 改为继承 MainWindow
         
         self.early_end = QRadioButton(LM.get_text('early_end'))
         self.late_end = QRadioButton(LM.get_text('late_end'))
-        self.early_end.setToolTip("当任一条件（时间/次数）达到时停止")
-        self.late_end.setToolTip("当所有条件都达到时停止")
+        self.early_end.setToolTip(LM.get_text('early_end_tooltip'))
+        self.late_end.setToolTip(LM.get_text('late_end_tooltip'))
         
         self.early_end.setChecked(True)
         end_condition_layout.addWidget(self.early_end)
@@ -131,7 +131,7 @@ class AutoClickerWindow(MainWindow):  # 改为继承 MainWindow
         # 开始快捷键设置
         start_layout = QHBoxLayout()
         self.start_shortcut_btn = QPushButton(LM.get_text('start_shortcut'))
-        self.start_shortcut_btn.setToolTip("点击此按钮后按下新的快捷键来更改")
+        self.start_shortcut_btn.setToolTip(LM.get_text('start_shortcut_tooltip'))
         self.start_shortcut_btn.clicked.connect(lambda: self.start_recording_shortcut(self.start_shortcut_btn))
         start_layout.addWidget(QLabel(LM.get_text('start_shortcut')))
         start_layout.addWidget(self.start_shortcut_btn)
@@ -140,7 +140,7 @@ class AutoClickerWindow(MainWindow):  # 改为继承 MainWindow
         # 停止快捷键设置
         stop_layout = QHBoxLayout()
         self.stop_shortcut_btn = QPushButton(LM.get_text('stop_shortcut'))
-        self.stop_shortcut_btn.setToolTip("点击此按钮后按下新的快捷键来更改")
+        self.stop_shortcut_btn.setToolTip(LM.get_text('stop_shortcut_tooltip'))
         self.stop_shortcut_btn.clicked.connect(lambda: self.start_recording_shortcut(self.stop_shortcut_btn))
         stop_layout.addWidget(QLabel(LM.get_text('stop_shortcut')))
         stop_layout.addWidget(self.stop_shortcut_btn)

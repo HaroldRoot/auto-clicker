@@ -33,6 +33,15 @@ TRANSLATIONS = {
         'info_title': '提示',
         'restart_required': '语言设置已更改，请重启程序以应用更改。',
         'restarting': '正在切换语言，程序即将重启...',
+        'delay_tooltip': '设置点击开始前的等待时间（秒）',
+        'duration_tooltip': '设置连点持续的总时间（秒）',
+        'count_tooltip': '设置要点击的总次数',
+        'interval_tooltip': '设置两次点击之间的时间间隔（毫秒）',
+        'infinite_mode_tooltip': '启用无限模式将忽略持续时间和点击次数限制',
+        'early_end_tooltip': '当任一条件（时间/次数）达到时停止',
+        'late_end_tooltip': '当所有条件都达到时停止',
+        'start_shortcut_tooltip': '点击此按钮后按下新的快捷键来更改',
+        'stop_shortcut_tooltip': '点击此按钮后按下新的快捷键来更改',
     },
     'en_US': {
         'window_title': 'Auto Clicker',
@@ -68,6 +77,15 @@ TRANSLATIONS = {
         'info_title': 'Information',
         'restart_required': 'Language setting has been changed. Please restart the program to apply the change.',
         'restarting': 'Switching language, application will restart...',
+        'delay_tooltip': 'Set waiting time before clicking starts (seconds)',
+        'duration_tooltip': 'Set total duration for auto-clicking (seconds)',
+        'count_tooltip': 'Set total number of clicks',
+        'interval_tooltip': 'Set time interval between clicks (milliseconds)',
+        'infinite_mode_tooltip': 'Enable infinite mode will ignore duration and click count limits',
+        'early_end_tooltip': 'Stop when any condition (time/count) is met',
+        'late_end_tooltip': 'Stop when all conditions are met',
+        'start_shortcut_tooltip': 'Click this button then press new shortcut to change',
+        'stop_shortcut_tooltip': 'Click this button then press new shortcut to change',
     }
 }
 
