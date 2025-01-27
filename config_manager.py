@@ -3,6 +3,17 @@ import os
 
 class ConfigManager:
     DEFAULT_CONFIG_PATH = "config.json"
+    DEFAULT_CONFIG = {
+        'delay': '3',
+        'interval': '50',
+        'duration': '',
+        'count': '',
+        'infinite_mode': False,
+        'early_end': True,
+        'start_shortcut': 'F8',
+        'stop_shortcut': 'F9',
+        'language': 'zh_CN'  # 添加默认语言设置
+    }
     
     @staticmethod
     def save_config(config_data, file_path=DEFAULT_CONFIG_PATH):
@@ -19,11 +30,15 @@ class ConfigManager:
     def load_config(file_path=DEFAULT_CONFIG_PATH):
         """从文件加载配置"""
         if not os.path.exists(file_path):
-            return None
+            return ConfigManager.DEFAULT_CONFIG.copy()
         
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
-                return json.load(f)
+                config = json.load(f)
+                # 确保所有默认配置项都存在
+                default_config = ConfigManager.DEFAULT_CONFIG.copy()
+                default_config.update(config)
+                return default_config
         except Exception as e:
             print(f"加载配置文件失败: {str(e)}")
-            return None
+            return ConfigManager.DEFAULT_CONFIG.copy()
