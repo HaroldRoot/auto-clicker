@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                            QLabel, QLineEdit, QPushButton, QCheckBox, QRadioButton,
                            QButtonGroup, QGroupBox, QMessageBox)
 from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtGui import QKeySequence, QShortcut, QIntValidator, QDoubleValidator
+from PyQt6.QtGui import QKeySequence, QShortcut, QIntValidator, QDoubleValidator, QKeyEvent
 import mouse
 import time
 
@@ -25,8 +25,14 @@ class AutoClickerWindow(QMainWindow):
         self.click_timer = QTimer()
         self.click_timer.timeout.connect(self.perform_click)
         
+        # 初始化快捷键变量
+        self.start_shortcut = None
+        self.stop_shortcut = None
+        self.recording_shortcut = False
+        self.shortcut_button = None
+        
         self.setup_central_widget()
-        self.setup_shortcuts()
+        self.setup_default_shortcuts()
         
     def setup_central_widget(self):
         """设置中心部件和主布局"""
@@ -38,6 +44,7 @@ class AutoClickerWindow(QMainWindow):
         layout.addWidget(self.create_delay_group())
         layout.addWidget(self.create_click_group())
         layout.addWidget(self.create_end_condition_group())
+        layout.addWidget(self.create_shortcut_group())
         layout.addLayout(self.create_control_buttons())
         
     def create_delay_group(self):
@@ -112,6 +119,32 @@ class AutoClickerWindow(QMainWindow):
         end_condition_group.setLayout(end_condition_layout)
         return end_condition_group
         
+    def create_shortcut_group(self):
+        """创建快捷键设置组"""
+        shortcut_group = QGroupBox("快捷键设置")
+        shortcut_layout = QVBoxLayout()
+        
+        # 开始快捷键设置
+        start_layout = QHBoxLayout()
+        self.start_shortcut_btn = QPushButton("F8")
+        self.start_shortcut_btn.setToolTip("点击此按钮后按下新的快捷键来更改")
+        self.start_shortcut_btn.clicked.connect(lambda: self.start_recording_shortcut(self.start_shortcut_btn))
+        start_layout.addWidget(QLabel("开始快捷键:"))
+        start_layout.addWidget(self.start_shortcut_btn)
+        shortcut_layout.addLayout(start_layout)
+        
+        # 停止快捷键设置
+        stop_layout = QHBoxLayout()
+        self.stop_shortcut_btn = QPushButton("F9")
+        self.stop_shortcut_btn.setToolTip("点击此按钮后按下新的快捷键来更改")
+        self.stop_shortcut_btn.clicked.connect(lambda: self.start_recording_shortcut(self.stop_shortcut_btn))
+        stop_layout.addWidget(QLabel("停止快捷键:"))
+        stop_layout.addWidget(self.stop_shortcut_btn)
+        shortcut_layout.addLayout(stop_layout)
+        
+        shortcut_group.setLayout(shortcut_layout)
+        return shortcut_group
+        
     def create_control_buttons(self):
         """创建控制按钮"""
         control_layout = QHBoxLayout()
@@ -127,10 +160,73 @@ class AutoClickerWindow(QMainWindow):
         
         return control_layout
         
-    def setup_shortcuts(self):
-        """设置快捷键"""
-        QShortcut(QKeySequence("F8"), self).activated.connect(self.start_clicking)
-        QShortcut(QKeySequence("F9"), self).activated.connect(self.stop_clicking)
+    def setup_default_shortcuts(self):
+        """设置默认快捷键"""
+        self.update_shortcut("F8", self.start_shortcut_btn)
+        self.update_shortcut("F9", self.stop_shortcut_btn)
+        
+    def start_recording_shortcut(self, button):
+        """开始记录快捷键"""
+        if self.recording_shortcut:
+            return
+            
+        self.recording_shortcut = True
+        self.shortcut_button = button
+        button.setText("按下快捷键...")
+        button.setStyleSheet("background-color: #ffeb3b;")
+        self.setFocus()
+        
+    def keyPressEvent(self, event: QKeyEvent):
+        """处理键盘事件"""
+        if not self.recording_shortcut:
+            super().keyPressEvent(event)
+            return
+            
+        # 获取按键序列
+        key = event.key()
+        modifiers = event.modifiers()
+        
+        # 忽略单独的修饰键
+        if key in (Qt.Key.Key_Control, Qt.Key.Key_Shift, Qt.Key.Key_Alt, Qt.Key.Key_Meta):
+            return
+            
+        # 创建快捷键序列
+        sequence = QKeySequence(key)
+        if modifiers & Qt.KeyboardModifier.ControlModifier:
+            sequence = QKeySequence("Ctrl+" + sequence.toString())
+        if modifiers & Qt.KeyboardModifier.AltModifier:
+            sequence = QKeySequence("Alt+" + sequence.toString())
+        if modifiers & Qt.KeyboardModifier.ShiftModifier:
+            sequence = QKeySequence("Shift+" + sequence.toString())
+        
+        # 更新快捷键
+        self.update_shortcut(sequence.toString(), self.shortcut_button)
+        
+        # 重置录制状态
+        self.recording_shortcut = False
+        self.shortcut_button.setStyleSheet("")
+        self.shortcut_button = None
+        
+    def update_shortcut(self, sequence, button):
+        """更新快捷键"""
+        # 移除旧的快捷键
+        if button == self.start_shortcut_btn and self.start_shortcut:
+            self.start_shortcut.setEnabled(False)
+            self.start_shortcut.deleteLater()
+        elif button == self.stop_shortcut_btn and self.stop_shortcut:
+            self.stop_shortcut.setEnabled(False)
+            self.stop_shortcut.deleteLater()
+        
+        # 创建新的快捷键
+        if button == self.start_shortcut_btn:
+            self.start_shortcut = QShortcut(QKeySequence(sequence), self)
+            self.start_shortcut.activated.connect(self.start_clicking)
+        else:
+            self.stop_shortcut = QShortcut(QKeySequence(sequence), self)
+            self.stop_shortcut.activated.connect(self.stop_clicking)
+        
+        # 更新按钮文本
+        button.setText(sequence)
         
     def toggle_infinite_mode(self, state):
         """切换无限模式"""
@@ -199,12 +295,34 @@ class AutoClickerWindow(QMainWindow):
                 count = int(self.count_input.text() or 0)
                 elapsed_time = time.time() - self.start_time
                 
+                should_stop = False
+                
                 if self.early_end.isChecked():
-                    if (duration and elapsed_time >= duration) or (count and self.click_count >= count):
-                        self.stop_clicking()
+                    # 较早结束：任一条件满足即停止
+                    if duration > 0 and elapsed_time >= duration:
+                        should_stop = True
+                    if count > 0 and self.click_count >= count:
+                        should_stop = True
                 else:
-                    if ((not duration or elapsed_time >= duration) and 
-                        (not count or self.click_count >= count)):
-                        self.stop_clicking()
+                    # 较晚结束：所有设置的条件都满足才停止
+                    conditions_met = 0
+                    total_conditions = 0
+                    
+                    if duration > 0:
+                        total_conditions += 1
+                        if elapsed_time >= duration:
+                            conditions_met += 1
+                            
+                    if count > 0:
+                        total_conditions += 1
+                        if self.click_count >= count:
+                            conditions_met += 1
+                            
+                    if total_conditions > 0 and conditions_met == total_conditions:
+                        should_stop = True
+                
+                if should_stop:
+                    self.stop_clicking()
+                    
             except ValueError:
                 pass 
