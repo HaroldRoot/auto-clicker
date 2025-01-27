@@ -10,12 +10,6 @@ def main():
     config = ConfigManager.load_config()
     LanguageManager.set_language(config.get('language', 'zh_CN'))
     
-    # 处理 DPI 感知
-    if hasattr(Qt, 'AA_EnableHighDpiScaling'):
-        QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
-    if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
-        QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
-    
     app = QApplication(sys.argv)
     window = AutoClickerWindow()
     window.show()
