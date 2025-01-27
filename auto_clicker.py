@@ -453,15 +453,7 @@ class AutoClickerWindow(MainWindow):  # 改为继承 MainWindow
         config['language'] = language
         ConfigManager.save_config(config)
         
-        # 提示用户即将重启
-        QMessageBox.information(
-            self,
-            LM.get_text('info_title'),
-            LM.get_text('restarting'),
-            QMessageBox.StandardButton.Ok
-        )
-        
-        # 自动重启应用程序
+        # 直接重启应用程序
         self.cleanup()  # 保存其他设置
         python = sys.executable
         os.execl(python, python, *sys.argv)
