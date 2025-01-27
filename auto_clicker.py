@@ -221,11 +221,13 @@ class AutoClickerWindow(QMainWindow):
         if button == self.start_shortcut_btn:
             self.start_shortcut = QShortcut(QKeySequence(sequence), self)
             self.start_shortcut.activated.connect(self.start_clicking)
+            self.start_button.setText(f"开始 ({sequence})")
         else:
             self.stop_shortcut = QShortcut(QKeySequence(sequence), self)
             self.stop_shortcut.activated.connect(self.stop_clicking)
+            self.stop_button.setText(f"停止 ({sequence})")
         
-        # 更新按钮文本
+        # 更新快捷键按钮文本
         button.setText(sequence)
         
     def toggle_infinite_mode(self, state):
