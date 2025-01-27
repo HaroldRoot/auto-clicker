@@ -6,10 +6,12 @@ from PyQt6.QtGui import QKeySequence, QShortcut, QIntValidator, QDoubleValidator
 import mouse
 import time
 from config_manager import ConfigManager
+import pyautogui
+from base_window import MainWindow  # 改为从新文件导入
 
-class AutoClickerWindow(QMainWindow):
+class AutoClickerWindow(MainWindow):  # 改为继承 MainWindow
     def __init__(self):
-        super().__init__()
+        super().__init__()  # 这会初始化 MainWindow 中的状态标签和布局
         self.init_ui()
         self.load_config()
         
@@ -17,6 +19,9 @@ class AutoClickerWindow(QMainWindow):
         """初始化用户界面"""
         self.setWindowTitle("自动连点器")
         self.setFixedSize(400, 500)
+        
+        # 获取主布局
+        main_layout = self.centralWidget().layout()
         
         # 初始化变量
         self.clicking = False
@@ -33,21 +38,14 @@ class AutoClickerWindow(QMainWindow):
         self.recording_shortcut = False
         self.shortcut_button = None
         
-        self.setup_central_widget()
+        # 添加其他组件
+        main_layout.addWidget(self.create_delay_group())
+        main_layout.addWidget(self.create_click_group())
+        main_layout.addWidget(self.create_end_condition_group())
+        main_layout.addWidget(self.create_shortcut_group())
+        main_layout.addLayout(self.create_control_buttons())
+        
         self.setup_default_shortcuts()
-        
-    def setup_central_widget(self):
-        """设置中心部件和主布局"""
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
-        layout = QVBoxLayout(central_widget)
-        
-        # 添加各个组件
-        layout.addWidget(self.create_delay_group())
-        layout.addWidget(self.create_click_group())
-        layout.addWidget(self.create_end_condition_group())
-        layout.addWidget(self.create_shortcut_group())
-        layout.addLayout(self.create_control_buttons())
         
     def create_delay_group(self):
         """创建延迟设置组"""
@@ -263,6 +261,9 @@ class AutoClickerWindow(QMainWindow):
         self.clicking = True
         self.click_count = 0
         
+        # 调用父类的开始方法来更新状态
+        super().start_clicking()
+        
         try:
             delay = float(self.delay_input.text())
             QTimer.singleShot(int(delay * 1000), self.start_click_timer)
@@ -285,19 +286,30 @@ class AutoClickerWindow(QMainWindow):
         self.start_button.setEnabled(True)
         self.stop_button.setEnabled(False)
         
+        # 调用父类的停止方法来更新状态
+        super().stop_clicking()
+        
     def perform_click(self):
         """执行点击操作"""
         if not self.clicking:
             return
             
         mouse.click()
-        self.click_count += 1
+        
+        # 调用父类的方法更新点击次数
+        super().update_click_count()
         
         if not self.infinite_mode.isChecked():
             try:
                 duration = float(self.duration_input.text() or 0)
                 count = int(self.count_input.text() or 0)
                 elapsed_time = time.time() - self.start_time
+                
+                # 更新剩余时间显示
+                if duration > 0:
+                    remaining = duration - elapsed_time
+                    if remaining > 0:
+                        super().update_remaining_time(int(remaining))
                 
                 should_stop = False
                 
@@ -329,8 +341,8 @@ class AutoClickerWindow(QMainWindow):
                     self.stop_clicking()
                     
             except ValueError:
-                pass 
-    
+                pass
+        
     def save_config(self):
         """保存当前配置"""
         config_data = {
@@ -365,3 +377,30 @@ class AutoClickerWindow(QMainWindow):
     def cleanup(self):
         """清理资源并保存配置"""
         self.save_config()
+
+    def click_loop(self):
+        while self.clicking:
+            if self.click_count < int(self.count_input.text()) or int(self.count_input.text()) == 0:
+                pyautogui.click()
+                self.click_count += 1
+                
+                if float(self.duration_input.text()) > 0:
+                    remaining = float(self.duration_input.text()) - (time.time() - self.start_time)
+                    if remaining <= 0:
+                        break
+                    self.update_remaining_time(int(remaining))
+                
+                time.sleep(float(self.interval_input.text()) / 1000)
+            else:
+                break
+
+    def update_remaining_time(self, seconds):
+        self.update_click_count()
+        self.update_click_count_label(f"剩余时间: {seconds}秒")
+
+    def update_click_count(self):
+        self.click_count += 1
+        self.update_click_count_label(f"点击次数: {self.click_count}")
+
+    def update_click_count_label(self, text):
+        self.click_count_label.setText(text)
