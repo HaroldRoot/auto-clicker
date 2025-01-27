@@ -5,11 +5,13 @@ from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QKeySequence, QShortcut, QIntValidator, QDoubleValidator, QKeyEvent
 import mouse
 import time
+from config_manager import ConfigManager
 
 class AutoClickerWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.init_ui()
+        self.load_config()
         
     def init_ui(self):
         """初始化用户界面"""
@@ -328,3 +330,38 @@ class AutoClickerWindow(QMainWindow):
                     
             except ValueError:
                 pass 
+    
+    def save_config(self):
+        """保存当前配置"""
+        config_data = {
+            'delay': self.delay_input.text(),
+            'interval': self.interval_input.text(),
+            'duration': self.duration_input.text(),
+            'count': self.count_input.text(),
+            'infinite_mode': self.infinite_mode.isChecked(),
+            'early_end': self.early_end.isChecked(),
+            'start_shortcut': self.start_shortcut_btn.text(),
+            'stop_shortcut': self.stop_shortcut_btn.text()
+        }
+        ConfigManager.save_config(config_data)
+    
+    def load_config(self):
+        """加载配置"""
+        config_data = ConfigManager.load_config()
+        if config_data:
+            self.delay_input.setText(config_data.get('delay', '3'))
+            self.interval_input.setText(config_data.get('interval', '50'))
+            self.duration_input.setText(config_data.get('duration', ''))
+            self.count_input.setText(config_data.get('count', ''))
+            self.infinite_mode.setChecked(config_data.get('infinite_mode', False))
+            self.early_end.setChecked(config_data.get('early_end', True))
+            
+            # 更新快捷键
+            if 'start_shortcut' in config_data:
+                self.update_shortcut(config_data['start_shortcut'], self.start_shortcut_btn)
+            if 'stop_shortcut' in config_data:
+                self.update_shortcut(config_data['stop_shortcut'], self.stop_shortcut_btn)
+    
+    def cleanup(self):
+        """清理资源并保存配置"""
+        self.save_config()

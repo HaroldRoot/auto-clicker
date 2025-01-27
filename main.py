@@ -6,7 +6,10 @@ def main():
     app = QApplication(sys.argv)
     window = AutoClickerWindow()
     window.show()
-    sys.exit(app.exec())
+    try:
+        sys.exit(app.exec())
+    finally:
+        window.cleanup()
 
 if __name__ == "__main__":
     main() 
